@@ -1,6 +1,7 @@
 import socket  
 import json     
-import atexit        
+import atexit    
+import re    
 
 s = socket.socket()         # Create a socket object
 host = '127.0.0.1'    #ip address of machine
@@ -25,18 +26,21 @@ s.listen(5)
 c, addr = s.accept()                    
 
 while True:
-   received = c.recv(1024).decode()
-   #if a new player is being created, assign a unique player id
-   if received == "Player Created":
-      c.sendall(str(playerid).encode())
-      print("Player Created ID: ", playerid)
-      playerid += 1
-   #location information on server needs to be updated
-   elif received != None:
-      #turn json into dic
-      print(received)
-      jsonDic = json.loads(received)
-      #update the dictionary
-      playerLocation[jsonDic["id"]] = (jsonDic["posx"], jsonDic["posy"])
-   else:
-      print(playerLocation)
+   orig = c.recv(1024).decode()
+   #Seperates all messages into a list. Assume all messages are enclosed in {}
+   receivedList = [e + "}" for e in orig.split("}") if e]
+   #Process all messages
+   for received in receivedList:
+      #if a new player is being created, assign a unique player id
+      if received == "{PlayerCreated}":
+         c.sendall(str(playerid).encode())
+         print("Player Created ID: ", playerid)
+         playerid += 1
+      #location information on server needs to be updated
+      elif received != None:
+         #turn json into dic
+         print(received)
+         jsonDic = json.loads(received)
+         #update the dictionary
+         playerLocation[jsonDic["id"]] = (jsonDic["posx"], jsonDic["posy"])
+         print(playerLocation)

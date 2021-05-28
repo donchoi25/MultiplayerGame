@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.width = width
         self.height = height
         self.speed = speed
-        s.send(str.encode("Player Created"))
+        s.sendall(str.encode("{PlayerCreated}"))
         self.id = (s.recv(1024)).decode()
     def draw(self):
         pygame.draw.rect(screen, (255, 0, 0), (self.x, self.y, self.width, self.height))
